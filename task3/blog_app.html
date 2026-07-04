@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Notes — a small blog</title>
+<style>
+  :root {
+    --paper: #EEEBE3;
+    --paper-line: #D8D3C6;
+    --ink: #262420;
+    --ink-soft: #5B564C;
+    --rust: #A8462F;
+    --olive: #5C6B4E;
+    --card-bg: #F7F5EF;
+    --shadow: rgba(38, 36, 32, 0.15);
+    --font-display: 'Courier New', ui-monospace, monospace;
+    --font-body: Georgia, 'Times New Roman', serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      repeating-linear-gradient(
+        transparent, transparent 27px, var(--paper-line) 28px
+      ),
+      var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    padding: 40px 20px 80px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 32px;
+  }
+
+  header .brand {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  header .brand span {
+    color: var(--rust);
+  }
+
+  header .tally {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .composer {
+    background: var(--card-bg);
+    border: 1px solid var(--paper-line);
+    box-shadow: 4px 4px 0 var(--shadow);
+    padding: 22px;
+    margin-bottom: 40px;
+  }
+
+  .composer .label {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--olive);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .composer input[type="text"],
+  .composer textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--paper-line);
+    background: transparent;
+    font-family: var(--font-body);
+    color: var(--ink);
+    padding: 8px 2px;
+    margin-bottom: 18px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .composer input[type="text"] {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .composer textarea {
+    font-size: 1rem;
+    line-height: 1.6;
+    min-height: 110px;
+    resize: vertical;
+    border-bottom: none;
+  }
+
+  .composer input[type="text"]:focus,
+  .composer textarea:focus {
+    border-color: var(--rust);
+  }
+
+  .composer-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hint {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-right: auto;
+    font-family: var(--font-display);
+  }
+
+  button {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: 2px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 20px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+
+  button:active {
+    transform: translate(0, 0);
+    box-shadow: none;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid var(--rust);
+    outline-offset: 2px;
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .entry {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--paper-line);
+    padding: 20px 22px;
+    box-shadow: 3px 3px 0 var(--shadow);
+    animation: settle 0.25s ease;
+  }
+
+  @keyframes settle {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .entry .stamp {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    text-align: right;
+    line-height: 1.4;
+  }
+
+  .entry .index {
+    font-family: var(--font-display);
+    color: var(--rust);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+
+  .entry h2 {
+    margin: 4px 100px 10px 0;
+    font-size: 1.35rem;
+    line-height: 1.3;
+  }
+
+  .entry p {
+    margin: 0 0 16px;
+    line-height: 1.7;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .entry .delete-btn {
+    background: transparent;
+    color: var(--rust);
+    border: 2px solid var(--rust);
+    padding: 6px 14px;
+    font-size: 0.75rem;
+  }
+
+  .entry .delete-btn:hover {
+    background: var(--rust);
+    color: var(--paper);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    border: 2px dashed var(--paper-line);
+  }
+
+  .empty-state .big {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 50px;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 520px) {
+    header { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .entry h2 { margin-right: 0; }
+    .entry .stamp { position: static; margin-bottom: 10px; text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">Field<span>Notes</span></div>
+    <div class="tally" id="tally">0 entries logged</div>
+  </header>
+
+  <section class="composer">
+    <label class="label" for="title-input">Title</label>
+    <input type="text" id="title-input" placeholder="What happened today?" maxlength="120">
+
+    <label class="label" for="body-input">Entry</label>
+    <textarea id="body-input" placeholder="Write it down before it fades..."></textarea>
+
+    <div class="composer-footer">
+      <span class="hint">Saved to this browser only</span>
+      <button id="save-btn">File Entry</button>
+    </div>
+  </section>
+
+  <section class="entries" id="entries-list"></section>
+</div>
+
+<footer>— stored locally, never leaves your machine —</footer>
+
+<script>
+  const STORAGE_KEY = 'fieldnotes_posts';
+
+  const titleInput = document.getElementById('title-input');
+  const bodyInput = document.getElementById('body-input');
+  const saveBtn = document.getElementById('save-btn');
+  const entriesList = document.getElementById('entries-list');
+  const tally = document.getElementById('tally');
+
+  function loadPosts() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      console.error('Failed to load posts from localStorage:', err);
+      return [];
+    }
+  }
+
+  function savePosts(posts) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    } catch (err) {
+      console.error('Failed to save posts to localStorage:', err);
+      alert('Could not save — your browser storage may be full or disabled.');
+    }
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) +
+           ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function render() {
+    const posts = loadPosts();
+    tally.textContent = `${posts.length} ${posts.length === 1 ? 'entry' : 'entries'} logged`;
+
+    if (posts.length === 0) {
+      entriesList.innerHTML = `
+        <div class="empty-state">
+          <span class="big">—</span>
+          Nothing filed yet. Write your first entry above.
+        </div>`;
+      return;
+    }
+
+    const sorted = [...posts].sort((a, b) => b.createdAt - a.createdAt);
+
+    entriesList.innerHTML = sorted.map((post, i) => `
+      <article class="entry" data-id="${post.id}">
+        <div class="stamp">No. ${String(sorted.length - i).padStart(3, '0')}<br>${formatDate(post.createdAt)}</div>
+        <div class="index">ENTRY</div>
+        <h2>${escapeHtml(post.title)}</h2>
+        <p>${escapeHtml(post.body)}</p>
+        <button class="delete-btn" data-id="${post.id}">Delete</button>
+      </article>
+    `).join('');
+  }
+
+  function addPost() {
+    const title = titleInput.value.trim();
+    const body = bodyInput.value.trim();
+
+    if (!title || !body) {
+      alert('Please write both a title and an entry before filing.');
+      return;
+    }
+
+    const posts = loadPosts();
+    posts.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      title,
+      body,
+      createdAt: Date.now(),
+    });
+    savePosts(posts);
+
+    titleInput.value = '';
+    bodyInput.value = '';
+    titleInput.focus();
+    render();
+  }
+
+  function deletePost(id) {
+    const posts = loadPosts().filter(p => p.id !== id);
+    savePosts(posts);
+    render();
+  }
+
+  saveBtn.addEventListener('click', addPost);
+
+  bodyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      addPost();
+    }
+  });
+
+  entriesList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+      const id = e.target.getAttribute('data-id');
+      if (confirm('Delete this entry? This cannot be undone.')) {
+        deletePost(id);
+      }
+    }
+  });
+
+  render();
+</script>
+
+</body>
+</html>
