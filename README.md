@@ -21,6 +21,19 @@ Each folder is a self-contained project with its own code and logic.
 
 ---
 
+## 📑 Table of Contents
+
+- [Projects Overview](#-projects-overview)
+- [Tech Stack](#️-tech-stack)
+- [Getting Started](#-getting-started)
+- [Folder Structure](#-folder-structure)
+- [Learning Highlights](#-learning-highlights)
+- [Roadmap](#️-roadmap)
+- [Contributing](#-contributing)
+- [Author](#️-author)
+
+---
+
 ## 🧩 Projects Overview
 
 <table>
@@ -110,12 +123,45 @@ python main.py
 \`\`\`
 projects/
 │
-├── task1/LoanEMICalculator/     💰 EMI Calculator
-├── task2/Api_Fetcher/           🌐 API Fetcher
-├── task3/blog_app/              📝 Blog App
-├── task4/gussing_game/          🎯 Guessing Game
-└── task5/contact_book/          📇 Contact Book
+├── 📁 task1/
+│   └── 📁 LoanEMICalculator/     💰 EMI Calculator
+│       └── 🐍 main.py
+│
+├── 📁 task2/
+│   └── 📁 Api_Fetcher/           🌐 API Fetcher
+│       └── 🐍 main.py
+│
+├── 📁 task3/
+│   └── 📁 blog_app/              📝 Blog App
+│       ├── 🐍 app.py
+│       └── 🌐 templates/
+│
+├── 📁 task4/
+│   └── 📁 gussing_game/          🎯 Guessing Game
+│       └── 🐍 main.py
+│
+├── 📁 task5/
+│   └── 📁 contact_book/          📇 Contact Book
+│       └── 🐍 main.py
+│
+└── 📄 README.md
 \`\`\`
+
+> 📝 **Note:** File names above are indicative — check each folder for the exact entry-point script.
+
+---
+
+## 💡 Learning Highlights
+
+Building this repo helped strengthen these core skills:
+
+| Skill | Where it's used |
+|---|---|
+| 🔢 Math & Logic | Loan EMI Calculator |
+| 🌐 API Integration & JSON | API Fetcher |
+| 🗂️ File Handling & Web Basics | Blog App |
+| 🔁 Loops & Randomization | Guessing Game |
+| 🧱 CRUD Operations | Contact Book |
 
 ---
 
