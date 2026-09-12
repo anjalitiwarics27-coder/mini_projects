@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gussing_game — task4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#e8ecf1;
+    --ink-dim:#93a1b5;
+    --navy-950:#0f1620;
+    --navy-900:#141d2b;
+    --navy-800:#1b2636;
+    --line:#2a3547;
+    --py-blue:#4b8bbe;
+    --py-yellow:#ffd43b;
+    --good:#6fd08a;
+    --bad:#e08a8a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--navy-950);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+  }
+  ::selection{background:var(--py-yellow);color:var(--navy-950);}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+ 
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .path{font-family:'IBM Plex Mono', monospace;font-size:14px;color:var(--ink-dim);}
+  .path span{color:var(--ink);}
+  .path .sep{color:var(--line);margin:0 4px;}
+  .topbar a.back{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    padding:8px 14px;
+    border-radius:6px;
+    transition:color .15s, border-color .15s;
+  }
+  .topbar a.back:hover{color:var(--py-yellow);border-color:var(--py-yellow);}
+ 
+  .wrap{max-width:640px;margin:0 auto;padding:56px 24px 80px;}
+  h1{font-size:clamp(26px, 3.6vw, 34px);font-weight:700;margin:0 0 8px;}
+  .sub{color:var(--ink-dim);margin:0 0 34px;max-width:56ch;}
+ 
+  .setup-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .diff-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    padding:9px 16px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--navy-900);
+    color:var(--ink-dim);
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .diff-btn:hover{border-color:var(--py-blue);color:var(--ink);}
+  .diff-btn.active{border-color:var(--py-yellow);color:var(--py-yellow);}
+ 
+  .panel{
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:30px 28px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--py-blue);
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+  }
+  .panel-head .dot{width:8px;height:8px;border-radius:50%;background:var(--py-blue);margin-right:8px;}
+  .tries-left{color:var(--ink-dim);}
+  .tries-left b{color:var(--py-yellow);}
+ 
+  .range-hint{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    margin-bottom:20px;
+  }
+ 
+  .guess-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .guess-row input{
+    flex:1;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:13px 14px;
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:18px;
+    text-align:center;
+    outline:none;
+  }
+  .guess-row input:focus{border-color:var(--py-blue);}
+  .guess-row input::-webkit-outer-spin-button,
+  .guess-row input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+ 
+  .guess-row button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    padding:0 22px;
+    border-radius:6px;
+    border:1px solid var(--py-yellow);
+    background:var(--py-yellow);
+    color:var(--navy-950);
+    font-weight:600;
+    cursor:pointer;
+  }
+  .guess-row button:hover{background:#ffdd5c;}
+  .guess-row button:disabled{
+    background:var(--navy-800);
+    border-color:var(--line);
+    color:var(--ink-dim);
+    cursor:not-allowed;
+  }
+ 
+  .feedback{
+    min-height:64px;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:16px;
+    padding:16px;
+    border-radius:8px;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .feedback.hot{color:var(--py-yellow);}
+  .feedback.cold{color:var(--py-blue);}
+  .feedback.win{color:var(--good);font-weight:600;}
+  .feedback.lose{color:var(--bad);}
+ 
+  .history{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:24px;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:5px;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+  }
+  .chip.hi{color:var(--py-yellow);}
+  .chip.lo{color:var(--py-blue);}
+ 
+  .play-again{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    padding:12px 18px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--navy-800);
+    color:var(--ink);
+    cursor:pointer;
+    display:none;
+  }
+  .play-again.show{display:block;}
+  .play-again:hover{border-color:var(--py-yellow);color:var(--py-yellow);}
+ 
+  footer{
+    max-width:640px;
+    margin:0 auto;
+    padding:40px 24px 60px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <div class="path mono">projects <span class="sep">/</span> task4 <span class="sep">/</span> <span>gussing_game</span></div>
+    <a class="back" href="../../index.html">← back to projects</a>
+  </div>
+ 
+  <div class="wrap">
+    <h1>Guess the number</h1>
+    <p class="sub">Pick a difficulty, then try to land on the number in as few tries as possible. Each guess gets a hot/cold hint.</p>
+ 
+    <div class="setup-row" id="diff-row">
+      <button class="diff-btn active" data-min="1" data-max="50" data-tries="7">Easy · 1–50 · 7 tries</button>
+      <button class="diff-btn" data-min="1" data-max="100" data-tries="7">Medium · 1–100 · 7 tries</button>
+      <button class="diff-btn" data-min="1" data-max="500" data-tries="9">Hard · 1–500 · 9 tries</button>
+    </div>
+ 
+    <div class="panel">
+      <div class="panel-head">
+        <span><span class="dot"></span>round</span>
+        <span class="tries-left">tries left: <b id="tries-left">7</b></span>
+      </div>
+ 
+      <div class="range-hint" id="range-hint">Pick a number between 1 and 50</div>
+ 
+      <div class="guess-row">
+        <input type="number" id="guess-input" placeholder="?" min="1" max="50">
+        <button id="guess-btn">Guess</button>
+      </div>
+ 
+      <div class="feedback" id="feedback">Enter a number and hit Guess to start.</div>
+ 
+      <div class="history" id="history"></div>
+ 
+      <button class="play-again" id="play-again">Play again</button>
+    </div>
+  </div>
+ 
+  <footer>task4/gussing_game — part of the projects repo</footer>
+ 
+<script>
+  const diffButtons = document.querySelectorAll('.diff-btn');
+  const rangeHint = document.getElementById('range-hint');
+  const triesLeftEl = document.getElementById('tries-left');
+  const guessInput = document.getElementById('guess-input');
+  const guessBtn = document.getElementById('guess-btn');
+  const feedbackEl = document.getElementById('feedback');
+  const historyEl = document.getElementById('history');
+  const playAgainBtn = document.getElementById('play-again');
+ 
+  let min = 1, max = 50, maxTries = 7;
+  let target, triesLeft, history, over;
+ 
+  function startGame(){
+    target = Math.floor(Math.random() * (max - min + 1)) + min;
+    triesLeft = maxTries;
+    history = [];
+    over = false;
+ 
+    rangeHint.textContent = `Pick a number between ${min} and ${max}`;
+    triesLeftEl.textContent = triesLeft;
+    guessInput.min = min;
+    guessInput.max = max;
+    guessInput.value = '';
+    guessInput.disabled = false;
+    guessBtn.disabled = false;
+    feedbackEl.className = 'feedback';
+    feedbackEl.textContent = 'Enter a number and hit Guess to start.';
+    historyEl.innerHTML = '';
+    playAgainBtn.classList.remove('show');
+    guessInput.focus();
+  }
+ 
+  diffButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      diffButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      min = Number(btn.dataset.min);
+      max = Number(btn.dataset.max);
+      maxTries = Number(btn.dataset.tries);
+      startGame();
+    });
+  });
+ 
+  function submitGuess(){
+    if (over) return;
+    const val = guessInput.value.trim();
+    if (val === ''){
+      feedbackEl.className = 'feedback';
+      feedbackEl.textContent = 'Type a number first.';
+      return;
+    }
+    const guess = Number(val);
+    if (!Number.isInteger(guess) || guess < min || guess > max){
+      feedbackEl.className = 'feedback';
+      feedbackEl.textContent = `Enter a whole number between ${min} and ${max}.`;
+      return;
+    }
+ 
+    triesLeft--;
+    triesLeftEl.textContent = triesLeft;
+ 
+    if (guess === target){
+      feedbackEl.className = 'feedback win';
+      feedbackEl.textContent = `🎯 Got it — the number was ${target}!`;
+      endGame(true, guess);
+      return;
+    }
+ 
+    const diff = Math.abs(guess - target);
+    const range = max - min;
+    let temp, cls;
+    if (diff <= range * 0.03){ temp = '🔥 Very hot'; cls = 'hot'; }
+    else if (diff <= range * 0.1){ temp = '♨️ Hot'; cls = 'hot'; }
+    else if (diff <= range * 0.25){ temp = '🙂 Warm'; cls = 'cold'; }
+    else { temp = '❄️ Cold'; cls = 'cold'; }
+ 
+    const dir = guess < target ? 'go higher' : 'go lower';
+    feedbackEl.className = 'feedback ' + cls;
+    feedbackEl.textContent = `${temp} — ${dir}`;
+ 
+    addChip(guess, guess < target ? 'lo' : 'hi');
+ 
+    if (triesLeft <= 0){
+      feedbackEl.className = 'feedback lose';
+      feedbackEl.textContent = `Out of tries — the number was ${target}.`;
+      endGame(false, guess);
+    }
+  }
+ 
+  function addChip(guess, dirClass){
+    const chip = document.createElement('span');
+    chip.className = 'chip ' + dirClass;
+    chip.textContent = guess;
+    historyEl.appendChild(chip);
+  }
+ 
+  function endGame(won, lastGuess){
+    over = true;
+    guessInput.disabled = true;
+    guessBtn.disabled = true;
+    if (won) addChip(lastGuess, 'hi');
+    playAgainBtn.classList.add('show');
+  }
+ 
+  guessBtn.addEventListener('click', submitGuess);
+  guessInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitGuess();
+  });
+  playAgainBtn.addEventListener('click', startGame);
+ 
+  startGame();
+</script>
+ 
+</body>
+</html>
