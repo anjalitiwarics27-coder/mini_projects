@@ -1,1 +1,386 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoanEMICalculator — task1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#e8ecf1;
+    --ink-dim:#93a1b5;
+    --navy-950:#0f1620;
+    --navy-900:#141d2b;
+    --navy-800:#1b2636;
+    --line:#2a3547;
+    --py-blue:#4b8bbe;
+    --py-yellow:#ffd43b;
+    --good:#6fd08a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--navy-950);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+  }
+  ::selection{background:var(--py-yellow);color:var(--navy-950);}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+ 
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .path{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    color:var(--ink-dim);
+  }
+  .path span{color:var(--ink);}
+  .path .sep{color:var(--line);margin:0 4px;}
+  .topbar a.back{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    padding:8px 14px;
+    border-radius:6px;
+    transition:color .15s, border-color .15s;
+  }
+  .topbar a.back:hover{color:var(--py-yellow);border-color:var(--py-yellow);}
+ 
+  .wrap{
+    max-width:880px;
+    margin:0 auto;
+    padding:56px 24px 80px;
+  }
+ 
+  h1{
+    font-size:clamp(26px, 3.6vw, 34px);
+    font-weight:700;
+    margin:0 0 8px;
+  }
+  .sub{
+    color:var(--ink-dim);
+    margin:0 0 40px;
+    max-width:60ch;
+  }
+ 
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr;}
+  }
+ 
+  .panel{
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:28px 26px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--py-blue);
+  }
+  .panel-head .dot{width:8px;height:8px;border-radius:50%;background:var(--py-blue);}
+ 
+  label{
+    display:block;
+    font-size:13.5px;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .field{margin-bottom:20px;}
+  .field-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .field-row .prefix{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink-dim);
+    font-size:15px;
+  }
+  input[type=number]{
+    width:100%;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:11px 12px;
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  input[type=number]:focus{border-color:var(--py-blue);}
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+ 
+  input[type=range]{
+    width:100%;
+    accent-color:var(--py-yellow);
+    margin-top:6px;
+  }
+  .range-val{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink);
+    text-align:right;
+  }
+ 
+  .err{
+    font-size:12.5px;
+    color:#e08a8a;
+    margin-top:6px;
+    font-family:'IBM Plex Mono', monospace;
+    min-height:16px;
+  }
+ 
+  /* results panel */
+  .result-hero{
+    text-align:center;
+    padding:14px 0 26px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:22px;
+  }
+  .result-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    margin-bottom:8px;
+  }
+  .result-value{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:38px;
+    color:var(--py-yellow);
+  }
+  .result-value span{font-size:20px;color:var(--ink-dim);}
+ 
+  .breakdown-row{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid var(--navy-800);
+    font-size:14.5px;
+  }
+  .breakdown-row:last-child{border-bottom:none;}
+  .breakdown-row .k{color:var(--ink-dim);}
+  .breakdown-row .v{font-family:'IBM Plex Mono', monospace;}
+ 
+  .bar{
+    height:8px;
+    border-radius:4px;
+    background:var(--navy-800);
+    overflow:hidden;
+    margin:18px 0 4px;
+    display:flex;
+  }
+  .bar .principal{background:var(--py-blue);}
+  .bar .interest{background:var(--py-yellow);}
+  .legend{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .legend .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;}
+ 
+  footer{
+    max-width:880px;
+    margin:0 auto;
+    padding:0 24px 60px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <div class="path mono">projects <span class="sep">/</span> task1 <span class="sep">/</span> <span>LoanEMICalculator</span></div>
+    <a class="back" href="../../index.html">← back to projects</a>
+  </div>
+ 
+  <div class="wrap">
+    <h1>Loan EMI Calculator</h1>
+    <p class="sub">Enter the loan amount, annual interest rate and tenure to work out the monthly EMI, total payment and total interest — same formula as the Python CLI version.</p>
+ 
+    <div class="grid">
+      <div class="panel">
+        <div class="panel-head"><span class="dot"></span> inputs</div>
+ 
+        <div class="field">
+          <label for="principal">Principal amount</label>
+          <div class="field-row">
+            <span class="prefix">₹</span>
+            <input type="number" id="principal" value="500000" min="1" step="1000">
+          </div>
+          <div class="err" id="err-principal"></div>
+        </div>
+ 
+        <div class="field">
+          <label for="rate">Annual interest rate</label>
+          <div class="field-row">
+            <input type="number" id="rate" value="9.5" min="0" step="0.1">
+            <span class="prefix">%</span>
+          </div>
+          <div class="err" id="err-rate"></div>
+        </div>
+ 
+        <div class="field">
+          <label for="tenure">Loan tenure</label>
+          <div class="field-row">
+            <input type="range" id="tenure" min="1" max="360" value="60">
+          </div>
+          <div class="range-val"><span id="tenure-val">60</span> months (<span id="tenure-years">5.0</span> yrs)</div>
+          <div class="err" id="err-tenure"></div>
+        </div>
+      </div>
+ 
+      <div class="panel">
+        <div class="panel-head"><span class="dot"></span> summary</div>
+ 
+        <div class="result-hero">
+          <div class="result-label">MONTHLY EMI</div>
+          <div class="result-value"><span>₹</span><span id="emi-out">0</span></div>
+        </div>
+ 
+        <div class="breakdown-row">
+          <span class="k">Total payment</span>
+          <span class="v" id="total-out">₹0</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="k">Total interest</span>
+          <span class="v" id="interest-out">₹0</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="k">Principal</span>
+          <span class="v" id="principal-out">₹0</span>
+        </div>
+ 
+        <div class="bar">
+          <div class="principal" id="bar-principal" style="width:50%"></div>
+          <div class="interest" id="bar-interest" style="width:50%"></div>
+        </div>
+        <div class="legend">
+          <span><span class="sw" style="background:var(--py-blue);"></span>principal</span>
+          <span><span class="sw" style="background:var(--py-yellow);"></span>interest</span>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <footer>task1/LoanEMICalculator — part of the projects repo</footer>
+ 
+<script>
+  const principalEl = document.getElementById('principal');
+  const rateEl = document.getElementById('rate');
+  const tenureEl = document.getElementById('tenure');
+  const tenureVal = document.getElementById('tenure-val');
+  const tenureYears = document.getElementById('tenure-years');
+ 
+  const emiOut = document.getElementById('emi-out');
+  const totalOut = document.getElementById('total-out');
+  const interestOut = document.getElementById('interest-out');
+  const principalOut = document.getElementById('principal-out');
+  const barPrincipal = document.getElementById('bar-principal');
+  const barInterest = document.getElementById('bar-interest');
+ 
+  const errPrincipal = document.getElementById('err-principal');
+  const errRate = document.getElementById('err-rate');
+  const errTenure = document.getElementById('err-tenure');
+ 
+  function inr(n){
+    return '₹' + n.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+ 
+  // Same logic as calculate_emi() in the Python script
+  function calculateEMI(principal, annualRate, tenureMonths){
+    const monthlyRate = (annualRate / 12) / 100;
+    if (monthlyRate === 0){
+      return principal / tenureMonths;
+    }
+    const factor = Math.pow(1 + monthlyRate, tenureMonths);
+    return (principal * monthlyRate * factor) / (factor - 1);
+  }
+ 
+  function update(){
+    const principal = parseFloat(principalEl.value);
+    const rate = parseFloat(rateEl.value);
+    const tenure = parseInt(tenureEl.value, 10);
+ 
+    tenureVal.textContent = tenure;
+    tenureYears.textContent = (tenure / 12).toFixed(1);
+ 
+    let valid = true;
+    errPrincipal.textContent = '';
+    errRate.textContent = '';
+    errTenure.textContent = '';
+ 
+    if (isNaN(principal) || principal <= 0){
+      errPrincipal.textContent = 'Enter a positive amount.';
+      valid = false;
+    }
+    if (isNaN(rate) || rate < 0){
+      errRate.textContent = 'Enter a valid rate.';
+      valid = false;
+    }
+    if (isNaN(tenure) || tenure <= 0){
+      errTenure.textContent = 'Enter a valid tenure.';
+      valid = false;
+    }
+ 
+    if (!valid){
+      emiOut.textContent = '—';
+      totalOut.textContent = '—';
+      interestOut.textContent = '—';
+      principalOut.textContent = '—';
+      return;
+    }
+ 
+    const emi = calculateEMI(principal, rate, tenure);
+    const totalPayment = emi * tenure;
+    const totalInterest = totalPayment - principal;
+ 
+    emiOut.textContent = emi.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+    totalOut.textContent = inr(totalPayment);
+    interestOut.textContent = inr(totalInterest);
+    principalOut.textContent = inr(principal);
+ 
+    const pPct = Math.max(2, Math.min(98, (principal / totalPayment) * 100));
+    barPrincipal.style.width = pPct + '%';
+    barInterest.style.width = (100 - pPct) + '%';
+  }
+ 
+  [principalEl, rateEl, tenureEl].forEach(el => el.addEventListener('input', update));
+  update();
+</script>
+ 
+</body>
+</html>
+ 
