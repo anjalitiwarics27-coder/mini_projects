@@ -1,1 +1,399 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Api_Fetcher — task2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#e8ecf1;
+    --ink-dim:#93a1b5;
+    --navy-950:#0f1620;
+    --navy-900:#141d2b;
+    --navy-800:#1b2636;
+    --line:#2a3547;
+    --py-blue:#4b8bbe;
+    --py-yellow:#ffd43b;
+    --good:#6fd08a;
+    --bad:#e08a8a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--navy-950);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+  }
+  ::selection{background:var(--py-yellow);color:var(--navy-950);}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+ 
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .path{font-family:'IBM Plex Mono', monospace;font-size:14px;color:var(--ink-dim);}
+  .path span{color:var(--ink);}
+  .path .sep{color:var(--line);margin:0 4px;}
+  .topbar a.back{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    padding:8px 14px;
+    border-radius:6px;
+    transition:color .15s, border-color .15s;
+  }
+  .topbar a.back:hover{color:var(--py-yellow);border-color:var(--py-yellow);}
+ 
+  .wrap{max-width:820px;margin:0 auto;padding:56px 24px 80px;}
+ 
+  h1{font-size:clamp(26px, 3.6vw, 34px);font-weight:700;margin:0 0 8px;}
+  .sub{color:var(--ink-dim);margin:0 0 36px;max-width:62ch;}
+ 
+  .menu{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:14px;
+    margin-bottom:32px;
+  }
+  @media (max-width:600px){ .menu{grid-template-columns:1fr;} }
+ 
+  .menu-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 18px;
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .15s, transform .15s;
+    font-family:'IBM Plex Sans', sans-serif;
+    color:var(--ink);
+  }
+  .menu-item:hover{border-color:var(--py-blue);}
+  .menu-item.active{border-color:var(--py-yellow);}
+  .menu-item .num{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink-dim);
+    font-size:13px;
+    width:20px;
+    flex-shrink:0;
+  }
+  .menu-item .emoji{font-size:22px;flex-shrink:0;}
+  .menu-item .label{font-size:14.5px;}
+  .menu-item .label small{display:block;color:var(--ink-dim);font-size:12.5px;margin-top:2px;}
+ 
+  /* city input for weather */
+  .city-row{
+    display:none;
+    gap:10px;
+    margin-bottom:24px;
+  }
+  .city-row.show{display:flex;}
+  .city-row input{
+    flex:1;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:12px 14px;
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14.5px;
+    outline:none;
+  }
+  .city-row input:focus{border-color:var(--py-blue);}
+  .city-row button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    padding:0 20px;
+    border-radius:6px;
+    border:1px solid var(--py-yellow);
+    background:var(--py-yellow);
+    color:var(--navy-950);
+    font-weight:600;
+    cursor:pointer;
+  }
+  .city-row button:hover{background:#ffdd5c;}
+ 
+  /* result panel */
+  .panel{
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:28px 26px;
+    min-height:180px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:20px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--py-blue);
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+  }
+  .panel-head .dot{width:8px;height:8px;border-radius:50%;background:var(--py-blue);}
+ 
+  .state-idle{color:var(--ink-dim);font-family:'IBM Plex Mono', monospace;font-size:14px;}
+  .state-loading{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+  }
+  .spinner{
+    width:14px;height:14px;
+    border-radius:50%;
+    border:2px solid var(--line);
+    border-top-color:var(--py-yellow);
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .state-error{
+    color:var(--bad);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+  }
+ 
+  /* weather result */
+  .w-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+  .w-emoji{font-size:40px;}
+  .w-loc{font-size:19px;font-weight:600;}
+  .w-cond{color:var(--ink-dim);font-size:14px;}
+  .w-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .w-stat{background:var(--navy-800);border:1px solid var(--line);border-radius:8px;padding:14px 16px;}
+  .w-stat .k{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--ink-dim);margin-bottom:4px;}
+  .w-stat .v{font-family:'IBM Plex Mono', monospace;font-size:20px;color:var(--py-yellow);}
+ 
+  /* joke result */
+  .qa-line{font-size:16px;margin-bottom:10px;}
+  .qa-line b{color:var(--good);margin-right:8px;font-family:'IBM Plex Mono', monospace;}
+ 
+  /* quote result */
+  .quote-text{font-size:18px;font-style:normal;margin-bottom:12px;max-width:56ch;}
+  .quote-author{color:var(--ink-dim);font-family:'IBM Plex Mono', monospace;font-size:13.5px;}
+ 
+  /* advice result */
+  .advice-text{font-size:17px;}
+ 
+  footer{
+    max-width:820px;
+    margin:0 auto;
+    padding:40px 24px 60px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <div class="path mono">projects <span class="sep">/</span> task2 <span class="sep">/</span> <span>Api_Fetcher</span></div>
+    <a class="back" href="../../index.html">← back to projects</a>
+  </div>
+ 
+  <div class="wrap">
+    <h1>Public API Data Fetcher</h1>
+    <p class="sub">Same four free, no-key APIs as the Python CLI version — weather, a joke, a quote and a piece of advice — called straight from the browser.</p>
+ 
+    <div class="menu">
+      <button class="menu-item" data-mode="weather"><span class="num">01</span><span class="emoji">☀️</span><span class="label">Weather<small>current conditions for a city</small></span></button>
+      <button class="menu-item" data-mode="joke"><span class="num">02</span><span class="emoji">😄</span><span class="label">Random joke<small>setup &amp; punchline</small></span></button>
+      <button class="menu-item" data-mode="quote"><span class="num">03</span><span class="emoji">💬</span><span class="label">Random quote<small>a line of inspiration</small></span></button>
+      <button class="menu-item" data-mode="advice"><span class="num">04</span><span class="emoji">🧠</span><span class="label">Random advice<small>one short slip</small></span></button>
+    </div>
+ 
+    <div class="city-row" id="city-row">
+      <input type="text" id="city-input" placeholder="Enter city name, e.g. Mumbai" autocomplete="off">
+      <button id="city-go">Fetch</button>
+    </div>
+ 
+    <div class="panel">
+      <div class="panel-head"><span class="dot"></span> <span id="panel-title">output</span></div>
+      <div id="result">
+        <div class="state-idle">Pick an option above to fetch data. ↑</div>
+      </div>
+    </div>
+  </div>
+ 
+  <footer>task2/Api_Fetcher — part of the projects repo</footer>
+ 
+<script>
+  const cityRow = document.getElementById('city-row');
+  const cityInput = document.getElementById('city-input');
+  const cityGo = document.getElementById('city-go');
+  const resultEl = document.getElementById('result');
+  const panelTitle = document.getElementById('panel-title');
+  const menuItems = document.querySelectorAll('.menu-item');
+ 
+  const WEATHER_CODES = {
+    0: ["Clear sky", "☀️"], 1: ["Mainly clear", "🌤️"], 2: ["Partly cloudy", "⛅"],
+    3: ["Overcast", "☁️"], 45: ["Fog", "🌫️"], 48: ["Depositing rime fog", "🌫️"],
+    51: ["Light drizzle", "🌦️"], 53: ["Moderate drizzle", "🌦️"], 55: ["Dense drizzle", "🌧️"],
+    61: ["Slight rain", "🌧️"], 63: ["Moderate rain", "🌧️"], 65: ["Heavy rain", "🌧️"],
+    71: ["Slight snow fall", "🌨️"], 73: ["Moderate snow fall", "🌨️"], 75: ["Heavy snow fall", "❄️"],
+    80: ["Slight rain showers", "🌦️"], 81: ["Moderate rain showers", "🌧️"], 82: ["Violent rain showers", "⛈️"],
+    95: ["Thunderstorm", "⛈️"], 96: ["Thunderstorm, slight hail", "⛈️"], 99: ["Thunderstorm, heavy hail", "⛈️"],
+  };
+ 
+  let currentMode = null;
+ 
+  function setActive(mode){
+    menuItems.forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+  }
+ 
+  function showLoading(msg){
+    resultEl.innerHTML = `<div class="state-loading"><span class="spinner"></span> ${msg}</div>`;
+  }
+  function showError(msg){
+    resultEl.innerHTML = `<div class="state-error">Error: ${msg}</div>`;
+  }
+  function showIdle(msg){
+    resultEl.innerHTML = `<div class="state-idle">${msg}</div>`;
+  }
+ 
+  async function fetchJSON(url, params){
+    let full = url;
+    if (params){
+      const q = new URLSearchParams(params).toString();
+      full = url + '?' + q;
+    }
+    const res = await fetch(full);
+    if (!res.ok) throw new Error(`service returned ${res.status}`);
+    return res.json();
+  }
+ 
+  // ---------------- weather ----------------
+  async function runWeather(city){
+    panelTitle.textContent = 'weather';
+    showLoading(`Looking up weather for ${city}...`);
+    try{
+      const geo = await fetchJSON('https://geocoding-api.open-meteo.com/v1/search', {name: city, count: 1});
+      const results = geo.results;
+      if (!results || !results.length){
+        showError(`could not find a location named '${city}'. Check the spelling and try again.`);
+        return;
+      }
+      const place = results[0];
+      const wx = await fetchJSON('https://api.open-meteo.com/v1/forecast', {
+        latitude: place.latitude,
+        longitude: place.longitude,
+        current_weather: true
+      });
+      const cur = wx.current_weather || {};
+      const [desc, emoji] = WEATHER_CODES[cur.weathercode] || ["Unknown", "❓"];
+ 
+      resultEl.innerHTML = `
+        <div class="w-head">
+          <div class="w-emoji">${emoji}</div>
+          <div>
+            <div class="w-loc">${place.name}, ${place.country || ''}</div>
+            <div class="w-cond">${desc}</div>
+          </div>
+        </div>
+        <div class="w-grid">
+          <div class="w-stat"><div class="k">TEMPERATURE</div><div class="v">${cur.temperature ?? '—'} °C</div></div>
+          <div class="w-stat"><div class="k">WIND SPEED</div><div class="v">${cur.windspeed ?? '—'} km/h</div></div>
+        </div>`;
+    } catch(e){
+      showError('could not reach the weather service. Check your internet connection and try again.');
+    }
+  }
+ 
+  // ---------------- joke ----------------
+  async function runJoke(){
+    panelTitle.textContent = 'random joke';
+    showLoading('Fetching a joke...');
+    try{
+      const data = await fetchJSON('https://official-joke-api.appspot.com/random_joke');
+      resultEl.innerHTML = `
+        <div class="qa-line"><b>Q:</b>${data.setup}</div>
+        <div class="qa-line"><b>A:</b>${data.punchline}</div>`;
+    } catch(e){
+      showError('could not reach the joke service. Please try again.');
+    }
+  }
+ 
+  // ---------------- quote ----------------
+  async function runQuote(){
+    panelTitle.textContent = 'random quote';
+    showLoading('Fetching a quote...');
+    try{
+      const data = await fetchJSON('https://api.quotable.io/random');
+      resultEl.innerHTML = `
+        <div class="quote-text">"${data.content}"</div>
+        <div class="quote-author">— ${data.author}</div>`;
+    } catch(e){
+      showError('could not reach the quote service right now. Please try again in a moment.');
+    }
+  }
+ 
+  // ---------------- advice ----------------
+  async function runAdvice(){
+    panelTitle.textContent = 'random advice';
+    showLoading('Fetching advice...');
+    try{
+      const data = await fetchJSON('https://api.adviceslip.com/advice');
+      const text = data && data.slip && data.slip.advice;
+      if (!text){
+        showError('no advice returned this time. Try again.');
+        return;
+      }
+      resultEl.innerHTML = `<div class="advice-text">${text}</div>`;
+    } catch(e){
+      showError('could not reach the advice service. Please try again.');
+    }
+  }
+ 
+  menuItems.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      currentMode = mode;
+      setActive(mode);
+ 
+      if (mode === 'weather'){
+        cityRow.classList.add('show');
+        panelTitle.textContent = 'weather';
+        showIdle('Enter a city name and hit Fetch. ↑');
+        cityInput.focus();
+        return;
+      }
+ 
+      cityRow.classList.remove('show');
+      if (mode === 'joke') runJoke();
+      if (mode === 'quote') runQuote();
+      if (mode === 'advice') runAdvice();
+    });
+  });
+ 
+  cityGo.addEventListener('click', () => {
+    const city = cityInput.value.trim();
+    if (!city){
+      showError('city name cannot be empty.');
+      return;
+    }
+    runWeather(city);
+  });
+  cityInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') cityGo.click();
+  });
+</script>
+ 
+</body>
+</html>
