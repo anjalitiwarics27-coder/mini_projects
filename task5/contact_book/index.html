@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>contact_book — task5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#e8ecf1;
+    --ink-dim:#93a1b5;
+    --navy-950:#0f1620;
+    --navy-900:#141d2b;
+    --navy-800:#1b2636;
+    --line:#2a3547;
+    --py-blue:#4b8bbe;
+    --py-yellow:#ffd43b;
+    --good:#6fd08a;
+    --bad:#e08a8a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--navy-950);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+  }
+  ::selection{background:var(--py-yellow);color:var(--navy-950);}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+ 
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .path{font-family:'IBM Plex Mono', monospace;font-size:14px;color:var(--ink-dim);}
+  .path span{color:var(--ink);}
+  .path .sep{color:var(--line);margin:0 4px;}
+  .topbar a.back{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    padding:8px 14px;
+    border-radius:6px;
+    transition:color .15s, border-color .15s;
+  }
+  .topbar a.back:hover{color:var(--py-yellow);border-color:var(--py-yellow);}
+ 
+  .wrap{max-width:920px;margin:0 auto;padding:56px 24px 80px;}
+  h1{font-size:clamp(26px, 3.6vw, 34px);font-weight:700;margin:0 0 8px;}
+  .sub{color:var(--ink-dim);margin:0 0 36px;max-width:62ch;}
+ 
+  .layout{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;}
+  @media (max-width:800px){ .layout{grid-template-columns:1fr;} }
+ 
+  .panel{
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:24px 22px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--py-blue);
+  }
+  .panel-head .dot{width:8px;height:8px;border-radius:50%;background:var(--py-blue);}
+ 
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .field{margin-bottom:16px;}
+  input[type=text], input[type=tel], input[type=email]{
+    width:100%;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 12px;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14.5px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  input:focus{border-color:var(--py-blue);}
+ 
+  .err{font-size:12px;color:var(--bad);margin-top:6px;font-family:'IBM Plex Mono', monospace;min-height:14px;}
+ 
+  .btn{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    padding:11px 18px;
+    border-radius:6px;
+    border:1px solid var(--py-yellow);
+    background:var(--py-yellow);
+    color:var(--navy-950);
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .btn:hover{background:#ffdd5c;}
+ 
+  .search-row{margin-bottom:20px;}
+  .search-row input{width:100%;}
+ 
+  .contact-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    margin-bottom:16px;
+  }
+ 
+  .contact{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+    margin-bottom:10px;
+    background:var(--navy-900);
+    transition:border-color .15s;
+  }
+  .contact:hover{border-color:var(--py-blue);}
+  .avatar{
+    width:42px;height:42px;
+    border-radius:50%;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    color:var(--py-yellow);
+    flex-shrink:0;
+  }
+  .c-main{flex:1;min-width:0;}
+  .c-name{font-size:15.5px;font-weight:600;}
+  .c-details{
+    display:flex;
+    gap:16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    margin-top:3px;
+    flex-wrap:wrap;
+  }
+  .del-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-dim);
+    background:none;
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 11px;
+    cursor:pointer;
+    transition:color .15s, border-color .15s;
+    flex-shrink:0;
+  }
+  .del-btn:hover{color:var(--bad);border-color:var(--bad);}
+ 
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    border:1px dashed var(--line);
+    border-radius:10px;
+  }
+ 
+  footer{
+    max-width:920px;
+    margin:0 auto;
+    padding:40px 24px 60px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <div class="path mono">projects <span class="sep">/</span> task5 <span class="sep">/</span> <span>contact_book</span></div>
+    <a class="back" href="../../index.html">← back to projects</a>
+  </div>
+ 
+  <div class="wrap">
+    <h1>contact_book</h1>
+    <p class="sub">Add, search and remove contacts — a small address book, styled to match the rest of the projects site.</p>
+ 
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-head"><span class="dot"></span> add contact</div>
+ 
+        <div class="field">
+          <label for="c-name">Name</label>
+          <input type="text" id="c-name" placeholder="Full name" maxlength="60">
+        </div>
+ 
+        <div class="field">
+          <label for="c-phone">Phone</label>
+          <input type="tel" id="c-phone" placeholder="e.g. 98765 43210" maxlength="20">
+        </div>
+ 
+        <div class="field">
+          <label for="c-email">Email <span style="opacity:.6">(optional)</span></label>
+          <input type="email" id="c-email" placeholder="name@example.com" maxlength="60">
+        </div>
+ 
+        <div class="err" id="c-err"></div>
+        <button class="btn" id="c-submit">Save contact</button>
+      </div>
+ 
+      <div>
+        <div class="search-row">
+          <input type="text" id="search" placeholder="Search by name or phone...">
+        </div>
+        <div class="contact-count" id="contact-count"></div>
+        <div id="contact-list"></div>
+      </div>
+    </div>
+  </div>
+ 
+  <footer>task5/contact_book — part of the projects repo</footer>
+ 
+<script>
+  const nameEl = document.getElementById('c-name');
+  const phoneEl = document.getElementById('c-phone');
+  const emailEl = document.getElementById('c-email');
+  const errEl = document.getElementById('c-err');
+  const submitBtn = document.getElementById('c-submit');
+  const searchEl = document.getElementById('search');
+  const listEl = document.getElementById('contact-list');
+  const countEl = document.getElementById('contact-count');
+ 
+  let contacts = [
+    { id: 3, name: "Priya Sharma", phone: "98765 43210", email: "priya.sharma@example.com" },
+    { id: 2, name: "Rohan Mehta",  phone: "91234 56789", email: "" },
+    { id: 1, name: "Anjali Tiwari", phone: "90000 11111", email: "anjali@example.com" }
+  ];
+  let nextId = 4;
+ 
+  function initials(name){
+    return name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  }
+ 
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+ 
+  function render(){
+    const query = searchEl.value.trim().toLowerCase();
+    const filtered = contacts
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .filter(c => c.name.toLowerCase().includes(query) || c.phone.replace(/\s+/g, '').includes(query.replace(/\s+/g, '')));
+ 
+    countEl.textContent = `${filtered.length} contact${filtered.length === 1 ? '' : 's'}${query ? ` matching "${query}"` : ''}`;
+ 
+    if (!filtered.length){
+      listEl.innerHTML = `<div class="empty">No contacts yet. Add the first one on the left.</div>`;
+      return;
+    }
+ 
+    listEl.innerHTML = filtered.map(c => `
+      <div class="contact" data-id="${c.id}">
+        <div class="avatar">${initials(c.name)}</div>
+        <div class="c-main">
+          <div class="c-name">${escapeHTML(c.name)}</div>
+          <div class="c-details">
+            <span>${escapeHTML(c.phone)}</span>
+            ${c.email ? `<span>${escapeHTML(c.email)}</span>` : ''}
+          </div>
+        </div>
+        <button class="del-btn" data-del="${c.id}">delete</button>
+      </div>
+    `).join('');
+  }
+ 
+  submitBtn.addEventListener('click', () => {
+    const name = nameEl.value.trim();
+    const phone = phoneEl.value.trim();
+    const email = emailEl.value.trim();
+ 
+    if (!name || !phone){
+      errEl.textContent = 'Name and phone number are required.';
+      return;
+    }
+    errEl.textContent = '';
+ 
+    contacts.push({ id: nextId++, name, phone, email });
+ 
+    nameEl.value = '';
+    phoneEl.value = '';
+    emailEl.value = '';
+    searchEl.value = '';
+    render();
+  });
+ 
+  listEl.addEventListener('click', (e) => {
+    const id = e.target.getAttribute('data-del');
+    if (id){
+      contacts = contacts.filter(c => c.id !== Number(id));
+      render();
+    }
+  });
+ 
+  searchEl.addEventListener('input', render);
+ 
+  render();
+</script>
+ 
+</body>
+</html>
