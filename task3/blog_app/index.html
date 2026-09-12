@@ -1,1 +1,344 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>blog_app — task3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#e8ecf1;
+    --ink-dim:#93a1b5;
+    --navy-950:#0f1620;
+    --navy-900:#141d2b;
+    --navy-800:#1b2636;
+    --line:#2a3547;
+    --py-blue:#4b8bbe;
+    --py-yellow:#ffd43b;
+    --good:#6fd08a;
+    --bad:#e08a8a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--navy-950);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+  }
+  ::selection{background:var(--py-yellow);color:var(--navy-950);}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+ 
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .path{font-family:'IBM Plex Mono', monospace;font-size:14px;color:var(--ink-dim);}
+  .path span{color:var(--ink);}
+  .path .sep{color:var(--line);margin:0 4px;}
+  .topbar a.back{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    padding:8px 14px;
+    border-radius:6px;
+    transition:color .15s, border-color .15s;
+  }
+  .topbar a.back:hover{color:var(--py-yellow);border-color:var(--py-yellow);}
+ 
+  .wrap{max-width:920px;margin:0 auto;padding:56px 24px 80px;}
+  h1{font-size:clamp(26px, 3.6vw, 34px);font-weight:700;margin:0 0 8px;}
+  .sub{color:var(--ink-dim);margin:0 0 36px;max-width:62ch;}
+ 
+  .layout{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;}
+  @media (max-width:800px){ .layout{grid-template-columns:1fr;} }
+ 
+  .panel{
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:24px 22px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--py-blue);
+  }
+  .panel-head .dot{width:8px;height:8px;border-radius:50%;background:var(--py-blue);}
+ 
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .field{margin-bottom:16px;}
+  input[type=text], textarea{
+    width:100%;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 12px;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14.5px;
+    outline:none;
+    transition:border-color .15s;
+    resize:vertical;
+  }
+  input[type=text]:focus, textarea:focus{border-color:var(--py-blue);}
+  textarea{min-height:110px;}
+ 
+  .err{font-size:12px;color:var(--bad);margin-top:6px;font-family:'IBM Plex Mono', monospace;min-height:14px;}
+ 
+  .btn{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    padding:11px 18px;
+    border-radius:6px;
+    border:1px solid var(--py-yellow);
+    background:var(--py-yellow);
+    color:var(--navy-950);
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .btn:hover{background:#ffdd5c;}
+ 
+  .search-row{margin-bottom:20px;}
+  .search-row input{width:100%;}
+ 
+  .post-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    margin-bottom:16px;
+  }
+ 
+  .post{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px 22px;
+    margin-bottom:14px;
+    background:var(--navy-900);
+    transition:border-color .15s;
+  }
+  .post:hover{border-color:var(--py-blue);}
+  .post-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;}
+  .post-title{font-size:18px;font-weight:600;}
+  .post-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-bottom:12px;
+  }
+  .post-meta span{color:var(--py-blue);}
+  .post-body{font-size:14.5px;color:var(--ink);white-space:pre-wrap;}
+  .post-actions{margin-top:14px;display:flex;gap:10px;}
+  .del-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-dim);
+    background:none;
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 11px;
+    cursor:pointer;
+    transition:color .15s, border-color .15s;
+  }
+  .del-btn:hover{color:var(--bad);border-color:var(--bad);}
+ 
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    border:1px dashed var(--line);
+    border-radius:10px;
+  }
+ 
+  footer{
+    max-width:920px;
+    margin:0 auto;
+    padding:40px 24px 60px;
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <div class="path mono">projects <span class="sep">/</span> task3 <span class="sep">/</span> <span>blog_app</span></div>
+    <a class="back" href="../../index.html">← back to projects</a>
+  </div>
+ 
+  <div class="wrap">
+    <h1>blog_app</h1>
+    <p class="sub">A small blog — write a post, publish it, browse or delete what's there. Posts live in memory for this session, styled to match the rest of the projects site.</p>
+ 
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-head"><span class="dot"></span> new post</div>
+ 
+        <div class="field">
+          <label for="p-title">Title</label>
+          <input type="text" id="p-title" placeholder="A short, clear title" maxlength="80">
+        </div>
+ 
+        <div class="field">
+          <label for="p-author">Author</label>
+          <input type="text" id="p-author" placeholder="Your name" maxlength="40">
+        </div>
+ 
+        <div class="field">
+          <label for="p-body">Post</label>
+          <textarea id="p-body" placeholder="Write what you want to say..."></textarea>
+        </div>
+ 
+        <div class="err" id="p-err"></div>
+        <button class="btn" id="p-submit">Publish post</button>
+      </div>
+ 
+      <div>
+        <div class="search-row">
+          <input type="text" id="search" placeholder="Search posts by title or author...">
+        </div>
+        <div class="post-count" id="post-count"></div>
+        <div id="post-list"></div>
+      </div>
+    </div>
+  </div>
+ 
+  <footer>task3/blog_app — part of the projects repo</footer>
+ 
+<script>
+  const titleEl = document.getElementById('p-title');
+  const authorEl = document.getElementById('p-author');
+  const bodyEl = document.getElementById('p-body');
+  const errEl = document.getElementById('p-err');
+  const submitBtn = document.getElementById('p-submit');
+  const searchEl = document.getElementById('search');
+  const listEl = document.getElementById('post-list');
+  const countEl = document.getElementById('post-count');
+ 
+  let posts = [
+    {
+      id: 3,
+      title: "Why I started this repo",
+      author: "Anjali",
+      body: "Picked up Python a few months ago and wanted a place to log the small projects along the way — this blog app is task 3 of 5.",
+      date: "2026-07-14"
+    },
+    {
+      id: 2,
+      title: "Loops finally clicked",
+      author: "Anjali",
+      body: "Spent a whole evening stuck on a while loop that never ended. Turned out I was updating the wrong variable. Small bug, big lesson.",
+      date: "2026-07-02"
+    },
+    {
+      id: 1,
+      title: "First post",
+      author: "Anjali",
+      body: "Hello, world — starting this blog to keep track of what I'm building while learning Python.",
+      date: "2026-06-20"
+    }
+  ];
+  let nextId = 4;
+ 
+  function formatDate(d){
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+ 
+  function render(){
+    const query = searchEl.value.trim().toLowerCase();
+    const filtered = posts.filter(p =>
+      p.title.toLowerCase().includes(query) || p.author.toLowerCase().includes(query)
+    );
+ 
+    countEl.textContent = `${filtered.length} post${filtered.length === 1 ? '' : 's'}${query ? ` matching "${query}"` : ''}`;
+ 
+    if (!filtered.length){
+      listEl.innerHTML = `<div class="empty">No posts here yet. Write the first one on the left.</div>`;
+      return;
+    }
+ 
+    listEl.innerHTML = filtered.map(p => `
+      <div class="post" data-id="${p.id}">
+        <div class="post-top">
+          <div class="post-title">${escapeHTML(p.title)}</div>
+        </div>
+        <div class="post-meta">by <span>${escapeHTML(p.author)}</span> · ${formatDate(p.date)}</div>
+        <div class="post-body">${escapeHTML(p.body)}</div>
+        <div class="post-actions">
+          <button class="del-btn" data-del="${p.id}">delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+ 
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+ 
+  submitBtn.addEventListener('click', () => {
+    const title = titleEl.value.trim();
+    const author = authorEl.value.trim() || 'Anonymous';
+    const body = bodyEl.value.trim();
+ 
+    if (!title || !body){
+      errEl.textContent = 'A title and some post content are required.';
+      return;
+    }
+    errEl.textContent = '';
+ 
+    posts.unshift({
+      id: nextId++,
+      title,
+      author,
+      body,
+      date: new Date().toISOString().slice(0, 10)
+    });
+ 
+    titleEl.value = '';
+    authorEl.value = '';
+    bodyEl.value = '';
+    searchEl.value = '';
+    render();
+  });
+ 
+  listEl.addEventListener('click', (e) => {
+    const id = e.target.getAttribute('data-del');
+    if (id){
+      posts = posts.filter(p => p.id !== Number(id));
+      render();
+    }
+  });
+ 
+  searchEl.addEventListener('input', render);
+ 
+  render();
+</script>
+ 
+</body>
+</html>
